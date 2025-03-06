@@ -1,12 +1,9 @@
 package main
 
 import (
-	"log/slog"
-	"os"
+	"go.uber.org/zap"
 )
 
-var handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-	Level: slog.LevelDebug,
-})
+var logger, err = zap.NewDevelopment()
 
-var logger = slog.New(handler)
+var lg = logger.Sugar()
