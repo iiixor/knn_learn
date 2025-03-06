@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log/slog"
 )
 
 func main() {
@@ -12,9 +11,9 @@ func main() {
 	// Пример логирования информационного события с контекстом
 	var dataSettings = DataSettings{}
 
-	dataSettings.Data, err = ReadCSV("./samples/knn_go.csv")
+	dataSettings.Data, err = ReadCSV("./samples/task8.csv")
 	if err != nil {
-		lg.Error("Failed to import CSV file", slog.Any("Error", err))
+		lg.Errorf("Failed to import CSV file: %v", err)
 	}
 	lg.Info("CSV filed imported successfully")
 	for _, sample := range dataSettings.Data {
@@ -22,11 +21,18 @@ func main() {
 	}
 
 	//Добавление весов и p
-	dataSettings.Weights = []float64{1.00, 1.00, 1.00}
-	dataSettings.P = 2
+	dataSettings.Weights = []float64{0.1, 0.4, 0.3, 0.2}
+	dataSettings.P = 1.5
 
-	dx, _ := WeightedMinkowski(dataSettings.Data[1].Values[1:4], dataSettings.Data[2].Values[1:4], dataSettings.Weights, dataSettings.P)
-
-	lg.Infof("DX {1;2} {p=2} = %f", dx)
-	lg.Info(dataSettings.Data[1].Values[1:4])
+	matrix, err := MakeMatrix(dataSettings)
+	if err != nil {
+		lg.Errorf("Failed to make K matrix: %v", err)
+	}
+	for _, line := range matrix {
+		sorted := SortMatrixFill(line)
+		for _, line := range sorted {
+			fmt.Printf("%s %.2f\n", line.Status, line.Value)
+		}
+		fmt.Println("---")
+	}
 }
