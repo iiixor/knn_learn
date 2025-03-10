@@ -2,14 +2,13 @@ package main
 
 import (
 	"encoding/csv"
-	"log"
 	"os"
 	"strconv"
 )
 
 type DataPoint struct {
 	Values []float64
-	Status string
+	Status float64
 	Dx     float64
 }
 
@@ -39,17 +38,22 @@ func ReadCSV(path string) ([]DataPoint, error) {
 		}
 
 		values := make([]float64, len(record)-1)
-		for j := 0; j < len(record)-1; j++ {
+		status := float64(0)
+		for j := 0; j < len(record); j++ {
 			val, err := strconv.ParseFloat(record[j], 64)
 			if err != nil {
-				log.Fatalf("Ошибка преобразования значения %q в строке %d: %v", record[j], i+1, err)
+				lg.Fatalf("Ошибка преобразования значения %q в строке %d: %v", record[j], i+1, err)
+			}
+			if j == len(record)-1 {
+				status = val
+				break
 			}
 			values[j] = val
 		}
 
 		dataset = append(dataset, DataPoint{
 			Values: values,
-			Status: record[len(record)-1],
+			Status: status,
 		})
 	}
 	return dataset, nil
