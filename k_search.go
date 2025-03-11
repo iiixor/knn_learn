@@ -5,19 +5,6 @@ import (
 	"sort"
 )
 
-type MatrixFill struct {
-	Number float64
-	Status float64
-	Value  float64
-}
-
-type KResult struct {
-	K    int
-	Good int
-	All  int
-	Acc  float64
-}
-
 func MakeMatrix(data DataSettings) ([][]MatrixFill, error) {
 	size := len(data.Data) - 1
 	matrix := make([][]MatrixFill, size)
@@ -42,13 +29,21 @@ func MakeMatrix(data DataSettings) ([][]MatrixFill, error) {
 			}
 
 			matrix[i][k] = MatrixFill{
-				Number: float64(k),
+				Number: float64(k) + 1,
 				Status: data.Data[k].Status,
 				Value:  dx,
 			}
 			// lg.Info(dx)
 		}
 	}
+	fmt.Printf("---\nMatrix Fill:\n---\n")
+	for _, mat := range matrix {
+		for _, matt := range mat {
+			fmt.Printf("|  %.2f  ", matt.Value)
+		}
+		fmt.Println()
+	}
+	fmt.Printf("---\n")
 	return matrix, nil
 }
 
@@ -116,6 +111,9 @@ func EvaluateK(k []int, matrix [][]MatrixFill) []KResult {
 		// Сортируем строку только один раз для всех k
 		sortedLine := SortMatrixFill(line)
 
+		// for _, value := range sortedLine {
+		// 	fmt.Println(value)
+		// }
 		// Получаем фактическое значение вне цикла по k
 		factValue := sortedLine[0].Status
 
@@ -130,28 +128,25 @@ func EvaluateK(k []int, matrix [][]MatrixFill) []KResult {
 			values := make([]float64, ki)
 
 			// Заполняем слайс значениями
-			for j := 1; j < ki; j++ {
+
+			for j := 1; j <= ki; j++ {
 				values[j-1] = sortedLine[j].Status
 			}
-
 			// Определяем моду
 			var modeValue float64
 			if ki == 1 {
 				// Особый случай для k=1
-				if len(sortedLine) > 1 {
-					modeValue = sortedLine[1].Status
-				} else {
-					continue
-				}
-			} else {
-				modeValue = mode(values)
+				values = []float64{sortedLine[1].Status}
 			}
-
+			modeValue = mode(values)
 			// Обновляем статистику
 			kResults[i].All++
+			fmt.Printf("Attempt: %d --- K: %d\n", kResults[i].All, kResults[i].K)
+			fmt.Printf("Fact: %.2f --- Mode: %.2f = %v\n", factValue, modeValue, values)
 			if factValue == modeValue {
 				kResults[i].Good++
 			}
+			// fmt.Println(kResults[i])
 		}
 	}
 
@@ -160,9 +155,20 @@ func EvaluateK(k []int, matrix [][]MatrixFill) []KResult {
 	for i := range kResults {
 		if kResults[i].All > 0 {
 			kResults[i].Acc = float64(kResults[i].Good) / float64(kResults[i].All)
-			fmt.Println(kResults[i])
+			fmt.Printf("K : %d --- Acc : %.2f %%\n", kResults[i].K, kResults[i].Acc*100)
 		}
 	}
 
 	return kResults
+}
+
+func FindBestK(ks []KResult) KResult {
+	var bestK KResult
+	bestK.Acc = ks[0].Acc
+	for _, k := range ks[1:] {
+		if k.Acc >= bestK.Acc {
+			bestK = k
+		}
+	}
+	return bestK
 }

@@ -6,18 +6,6 @@ import (
 	"strconv"
 )
 
-type DataPoint struct {
-	Values []float64
-	Status float64
-	Dx     float64
-}
-
-type DataSettings struct {
-	Data    []DataPoint
-	Weights []float64
-	P       float64
-}
-
 func ReadCSV(path string) ([]DataPoint, error) {
 	file, err := os.Open(path)
 	if err != nil {
