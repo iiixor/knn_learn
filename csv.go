@@ -21,13 +21,13 @@ func ReadCSV(path string) ([]DataPoint, error) {
 
 	var dataset []DataPoint
 	for i, record := range records {
+		// Пропускаем заголовки
 		if i == 0 { // Пропускаем заголовок
 			continue
 		}
-
 		values := make([]float64, len(record)-1)
 		status := float64(0)
-		for j := 0; j < len(record); j++ {
+		for j := range record {
 			val, err := strconv.ParseFloat(record[j], 64)
 			if err != nil {
 				lg.Fatalf("Ошибка преобразования значения %q в строке %d: %v", record[j], i+1, err)

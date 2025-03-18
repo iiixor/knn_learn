@@ -6,7 +6,13 @@ import (
 )
 
 func MakeMatrix(data DataSettings) ([][]MatrixFill, error) {
-	size := len(data.Data) - 1
+	num := 0
+	for _, d := range data.Data {
+		if d.Status == -1.00 {
+			num += 1
+		}
+	}
+	size := len(data.Data) - num
 	matrix := make([][]MatrixFill, size)
 	dataSize := len(data.Data[0].Values)
 
@@ -93,7 +99,7 @@ func mode(slice []float64) float64 {
 		sum += value
 	}
 
-	return sum / float64(len(modes))
+	return -1
 }
 
 // EvaluateK оценивает точность предсказаний для различных значений k
@@ -171,4 +177,12 @@ func FindBestK(ks []KResult) KResult {
 		}
 	}
 	return bestK
+}
+
+func ChoiseKs(DataPoints []DataPoint) []int {
+	var k []int
+	for i := 1; i <= len(DataPoints); i += 2 {
+		k = append(k, i)
+	}
+	return k
 }
